@@ -59,6 +59,16 @@
 </head>
 <body class="flex min-h-screen">
 
+    <div id="toast" class="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-3 rounded shadow-lg z-50 hidden max-w-sm transition-opacity duration-300">
+        <div class="flex items-start">
+            <i class="fa-solid fa-circle-exclamation mt-1 mr-3"></i>
+            <div class="flex-grow">
+                <p id="toast-message" class="text-xs font-medium"></p>
+            </div>
+            <button onclick="document.getElementById('toast').style.display='none'" class="ml-3 text-white hover:text-gray-200"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
     <div id="loader">
         <div class="spinner mb-4"></div>
         <h2 class="text-navy font-bold text-lg">Carregando dados da nuvem...</h2>
@@ -350,71 +360,6 @@
                 </div>
             </section>
 
-            <section id="turisticas" class="section-content">
-                <div class="mb-8 p-4 bg-navy text-white rounded-xl shadow-lg flex items-center border-l-8 border-gold">
-                    <div class="mr-4 text-2xl text-gold"><i class="fa-solid fa-umbrella-beach"></i></div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-blue-200">Polos e Estâncias Turísticas do Estado de São Paulo</p>
-                        <p class="text-sm italic">Análise demográfica dos principais municípios de interesse turístico (MITs) e Estâncias, com destaque para a Estância Turística de Olímpia.</p>
-                    </div>
-                </div>
-
-                <!-- KPI Cards Turísticas -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                    <div class="card p-6 border-l-8 border-navy">
-                        <p class="text-navy text-xs font-black uppercase tracking-wider mb-1">População em Polos Turísticos</p>
-                        <h3 id="tourist-total-pop" class="text-2xl md:text-3xl font-bold text-navy">0</h3>
-                        <p class="text-[10px] text-green-700 mt-2 font-bold bg-green-50 px-2 py-1 rounded-md inline-block">Habitantes (2026)</p>
-                    </div>
-                    <div class="card p-6 border-l-8 border-gold">
-                        <p class="text-gray-700 text-xs font-black uppercase tracking-wider mb-1">Destaque: Olímpia-SP</p>
-                        <h3 id="tourist-olimpia-pop" class="text-2xl md:text-3xl font-bold text-amber-600">0</h3>
-                        <p id="tourist-olimpia-rank" class="text-[10px] text-gray-700 mt-2 font-bold">Posição entre estâncias</p>
-                    </div>
-                    <div class="card p-6 border-l-8 border-green-600">
-                        <p class="text-gray-700 text-xs font-black uppercase tracking-wider mb-1">Cidades Turísticas Monitoradas</p>
-                        <h3 id="tourist-count" class="text-2xl md:text-3xl font-bold text-green-700">0</h3>
-                        <p class="text-[10px] text-gray-800 mt-2 font-bold italic">Estâncias & Municípios de Interesse</p>
-                    </div>
-                </div>
-
-                <!-- Gráfico e Tabela de Cidades Turísticas -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    <div class="card p-6 flex flex-col items-center">
-                        <h4 class="font-black text-navy text-sm mb-4 uppercase tracking-widest border-b-2 border-gold pb-2 w-full flex justify-between">
-                            <span>População - Principais Cidades Turísticas</span>
-                            <span class="text-gold">2026</span>
-                        </h4>
-                        <div class="h-80 w-full relative">
-                            <canvas id="touristChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="card p-0 overflow-hidden flex flex-col h-full">
-                        <div class="p-6 pb-4 border-b">
-                            <h4 class="font-black text-navy text-sm uppercase tracking-widest">Ranking de Estâncias & Polos Turísticos</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">Evolução e crescimento demográfico</p>
-                        </div>
-                        <div class="overflow-x-auto flex-grow h-72">
-                            <table class="w-full text-left text-xs" id="touristTable">
-                                <thead class="bg-navy text-white uppercase text-[10px] sticky top-0">
-                                    <tr>
-                                        <th class="p-3">Município Turístico</th>
-                                        <th class="p-3 text-right">Pop. 2024</th>
-                                        <th class="p-3 text-right">Pop. 2025</th>
-                                        <th class="p-3 text-right">Pop. 2026</th>
-                                        <th class="p-3 text-right">Crescimento (2021 a 2026)</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-gray-800 font-medium" id="tourist-table-body">
-                                    <!-- Preenchido via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
         </div>
     </main>
 
@@ -519,6 +464,10 @@
 
             "BARRETOS": "Região de Barretos",
             "OLÍMPIA": "Região de Barretos",
+            "ALTAIR": "Região de Barretos",
+            "CAJOBI": "Região de Barretos",
+            "GUARACI": "Região de Barretos",
+            "SEVERÍNIA": "Região de Barretos",
             "BEBEDOURO": "Região de Barretos",
 
             "FRANCA": "Região de Franca",
@@ -536,9 +485,6 @@
 
         function getRegionForCity(cityName) {
             const upper = cityName.toUpperCase();
-            if (microRegionOlimpia.includes(upper)) {
-                return "Microrregião de Olímpia";
-            }
             if (regionMappingRules[upper]) {
                 return regionMappingRules[upper];
             }
@@ -555,6 +501,8 @@
                 setupComparisonChart();
                 setupRegionSection();
                 setupTouristSection();
+            } else {
+                showErrorToast("Nenhum dado encontrado na base.");
             }
             document.getElementById('loader').style.display = 'none';
         }
@@ -562,7 +510,8 @@
         async function fetchData() {
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error("Erro na rede.");
+                if (!response.ok) throw new Error(`Erro na rede. Status: ${response.status}`);
+                
                 const json = await response.json();
                 
                 rawData = json.map(row => {
@@ -578,7 +527,45 @@
 
             } catch (error) {
                 console.error("Erro ao buscar dados:", error);
+                showErrorToast("Falha ao carregar dados oficiais (Verifique as permissões 'Qualquer pessoa' no Google Apps Script). Carregando base de demonstração...");
+                loadFallbackData();
             }
+        }
+
+        function showErrorToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            if(toast && toastMsg) {
+                toastMsg.textContent = msg;
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 10000);
+            }
+        }
+
+        function loadFallbackData() {
+            rawData = [
+                { ano: 2024, uf: "SP", nome: "SÃO PAULO", populacao: 11451810, regiao: "Região Metropolitana de SP" },
+                { ano: 2025, uf: "SP", nome: "SÃO PAULO", populacao: 11500000, regiao: "Região Metropolitana de SP" },
+                { ano: 2026, uf: "SP", nome: "SÃO PAULO", populacao: 11550000, regiao: "Região Metropolitana de SP" },
+                { ano: 2024, uf: "SP", nome: "OLÍMPIA", populacao: 55000, regiao: "Região de Barretos" },
+                { ano: 2025, uf: "SP", nome: "OLÍMPIA", populacao: 56100, regiao: "Região de Barretos" },
+                { ano: 2026, uf: "SP", nome: "OLÍMPIA", populacao: 57200, regiao: "Região de Barretos" },
+                { ano: 2024, uf: "SP", nome: "SANTOS", populacao: 418000, regiao: "Região de Santos" },
+                { ano: 2025, uf: "SP", nome: "SANTOS", populacao: 420000, regiao: "Região de Santos" },
+                { ano: 2026, uf: "SP", nome: "SANTOS", populacao: 422000, regiao: "Região de Santos" },
+                { ano: 2024, uf: "SP", nome: "CAJOBI", populacao: 10500, regiao: "Região de Barretos" },
+                { ano: 2025, uf: "SP", nome: "CAJOBI", populacao: 10600, regiao: "Região de Barretos" },
+                { ano: 2026, uf: "SP", nome: "CAJOBI", populacao: 10700, regiao: "Região de Barretos" },
+                { ano: 2024, uf: "SP", nome: "SEVERÍNIA", populacao: 17000, regiao: "Região de Barretos" },
+                { ano: 2025, uf: "SP", nome: "SEVERÍNIA", populacao: 17200, regiao: "Região de Barretos" },
+                { ano: 2026, uf: "SP", nome: "SEVERÍNIA", populacao: 17400, regiao: "Região de Barretos" },
+                { ano: 2024, uf: "SP", nome: "GUARACI", populacao: 11000, regiao: "Região de Barretos" },
+                { ano: 2025, uf: "SP", nome: "GUARACI", populacao: 11100, regiao: "Região de Barretos" },
+                { ano: 2026, uf: "SP", nome: "GUARACI", populacao: 11200, regiao: "Região de Barretos" },
+                { ano: 2024, uf: "SP", nome: "ALTAIR", populacao: 4100, regiao: "Região de Barretos" },
+                { ano: 2025, uf: "SP", nome: "ALTAIR", populacao: 4150, regiao: "Região de Barretos" },
+                { ano: 2026, uf: "SP", nome: "ALTAIR", populacao: 4200, regiao: "Região de Barretos" }
+            ];
         }
 
         function processMetadata() {
@@ -720,10 +707,12 @@
             rawData.forEach(r => regionsSet.add(r.regiao));
             let regionsList = Array.from(regionsSet).sort();
 
-            regionsList = regionsList.filter(r => r !== "Microrregião de Olímpia");
-            regionsList.unshift("Microrregião de Olímpia");
+            if(!regionsList.includes("Microrregião de Olímpia")) {
+                regionsList.unshift("Microrregião de Olímpia");
+            }
 
             const regionSelect = document.getElementById('regionSelect');
+            regionSelect.innerHTML = '<option value="TODAS">Todas as Regiões</option>';
             regionsList.forEach(reg => {
                 const opt = document.createElement('option');
                 opt.value = reg;
@@ -779,9 +768,8 @@
                 regionArray.forEach((item, index) => {
                     const tr = document.createElement('tr');
                     tr.className = index % 2 === 0 ? 'bg-gray-50 border-b' : 'border-b';
-                    const isOlimpiaMicro = item.regiao === "Microrregião de Olímpia";
                     tr.innerHTML = `
-                        <td class="p-3 ${isOlimpiaMicro ? 'text-amber-600 font-black' : 'text-navy font-bold'}">${isOlimpiaMicro ? '⭐ ' : ''}${item.regiao}</td>
+                        <td class="p-3 text-navy font-bold">${item.regiao}</td>
                         <td class="p-3 text-center">${item.municipios}</td>
                         <td class="p-3 text-right font-medium">${numFormat.format(item.populacao)}</td>
                     `;
@@ -849,7 +837,9 @@
                     </tr>
                 `;
 
-                const regionCities = dataYear.filter(r => r.regiao === selectedRegion);
+                const regionCities = isOlimpiaMicro 
+                    ? dataYear.filter(r => microRegionOlimpia.includes(r.nome.toUpperCase()))
+                    : dataYear.filter(r => r.regiao === selectedRegion);
                 
                 const cityRows = regionCities.map(r => {
                     const earlyRecord = rawData.find(item => item.nome === r.nome && item.ano === earliestYear);
@@ -869,7 +859,7 @@
                         pop2026: finalPop,
                         growth: growthRate
                     };
-                }).sort((a, b) => b.pop2026 - a.pop2026);
+                }).sort((a, b) => b.growth - a.growth);
 
                 tbody.innerHTML = '';
                 cityRows.forEach((item, index) => {
